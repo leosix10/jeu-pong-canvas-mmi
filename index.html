@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>Jeu javascript</title>
+    <meta charset="utf-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        *{
+            font-family: 'Press Start 2P', cursive;
+        }
+        body{
+            text-align: center;
+            background-color: #75C3F2;
+        }
+        h1, h2{
+            color: white;
+            -webkit-text-stroke: 2px;
+            -webkit-text-stroke-color: black;
+        }
+        #monCanvas{
+            box-shadow: 0px 0px 10px 1px;
+        }
+        #jouer{
+            margin-top: 20px;
+            padding: 12px;
+        }
+    </style>
+    <script type="text/javascript">
+
+        var x=250;
+        var y=250;
+        var vity=0;
+        var vitx=4;
+        var sauter=0;
+        var oldsauter=0;
+        var xobs=475;
+        var yobs=200;
+        var compteur=0;
+        var bw=30, bh=40, obsw=48, obsh=89;
+
+        $(document).ready( function() {
+
+            //.... ici touts le code javascript pour dessiner et gérer la zone canvas
+            var canvas1 = document.getElementById('monCanvas');
+            var context = canvas1.getContext('2d');
+
+            //background
+            var paysage = new Image();
+            paysage.src = "background.jpg";
+            paysage.onload=function(){
+                context.drawImage(paysage, 0, 0);
+            }
+
+            // creation d'une image
+            var ballon = new Image();
+            ballon.src = "ballon.png";
+            //dessiner l'image dans le canvas
+            ballon.onload=function () {
+                context.drawImage(ballon, x, y);
+            }
+
+            // creation d'une image
+            var barre = new Image();
+            barre.src = "barre.png";
+            //dessiner l'image dans le canvas
+            barre.onload=function () {
+                context.drawImage(barre, 0, -10);
+                context.drawImage(barre, 0, 460);
+            }
+
+            // creation d'une image
+            var obstacle = new Image();
+            obstacle.src = "obstacle.png";
+            //dessiner l'image dans le canvas
+            obstacle.onload=function () {
+                context.drawImage(obstacle, xobs, yobs);
+            }
+
+
+            /*context.fillStyle="lightblue";
+            context.fillRect(0 , 0 , 500 , 500);*/
+
+            $('body').keydown(function(ev){
+                if(ev.keyCode == 32) sauter=1 ;
+            });
+
+            $('body').keyup(function(ev){
+                if(ev.keyCode == 32) {sauter=0;oldsauter=0} ;
+            });
+
+
+            $('#jouer').click(function(ev){
+                ev.preventDefault()
+                $("#bidon").trigger("focus")
+                jouer()
+            });
+
+            function jouer() {
+
+                var montimer = setInterval(function(){
+                    if( sauter == 1 && oldsauter == 0 ) { oldsauter=1 ; vity-=4; }
+                    //Ordonnée y
+                    vity += 0.05
+                    y+=vity
+                    if ((y>450) || (y<25)){
+                        vity *= -0.8
+                        // si on touche haut ou bas, compteur=0
+                        compteur=0
+                        clearInterval(montimer)
+                    }
+
+                    //Abscisse x
+                    x+=vitx
+                    if ((x>475) || (x<0)){
+                        vitx *= -1
+                        // rebond
+                        compteur++
+                        if (vitx>0){
+                            xobs = 475
+                        } else {
+                            xobs = -25
+                        }
+                        yobs = Math.round(Math.random()*400+20)
+                    }
+                    if ((y+bh/2 < yobs+obsh) && (y+bh/2 > yobs)
+                        && ((x+bw/2 < xobs+obsw) && (x+bw/2 > xobs))) {
+                        compteur=0
+                        vitx*=1
+                        clearInterval(montimer)
+                    }
+
+                    /*context.fillStyle="#7ACAF9";
+                    context.fillRect(0 , 0, 500, 500);*/
+                    context.drawImage(paysage, 0, 0);
+                    context.fillStyle="white"
+                    context.font = "28px Berlin Sans FB";
+                    context.fillText("Score : "+compteur, 30, 70);
+                    context.drawImage(barre, 0, -10);
+                    context.drawImage(barre, 0, 460);
+                    context.drawImage(obstacle, xobs, yobs);
+                    context.drawImage(ballon, x, y);
+
+                }, 15 );
+            }
+
+        });
+
+    </script>
+</head>
+<body >
+    <h1>Le boss final jamais dévoilé !</h1>
+    <h2>Pikachu ne doit pas rentrer dans la pokéball</h2>
+    <canvas width="500px" height="500px" id="monCanvas"></canvas>
+    <br>
+    <button id="jouer">Jouer</button>
+    <input type="text" id="bidon" style="position: fixed; left: -10000px;">
+</body>
+</html>
